@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "@tanstack/router-vite-plugin": "^1.114.27",
+    "@vitejs/plugin-react-swc": "^3.8.1",
+    "vite": "^6.2.3"
+  }
+}
