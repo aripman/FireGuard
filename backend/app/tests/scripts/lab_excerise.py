@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # location = Location(latitude=59.4225, longitude=5.2480)  # Haugesund
 
     # days into the past to retrieve observed weather data
-    obs_delta = datetime.timedelta(days=2)
+    obs_delta = datetime.timedelta(days=10)
 
     wd = frc.get_weatherdata_now(location, obs_delta)
     print (wd)
