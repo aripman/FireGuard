@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from pydantic import BaseModel
 
-router = APIRouter()
+router = APIRouter(prefix="/geonorge", tags=["locations"])
 
 
 class Stedsnavn(BaseModel):
@@ -20,9 +20,8 @@ class Stedsnavn(BaseModel):
 
 #returner bare et sted, men det er ikke den meste optimale måten å gjør det på
 #pga den returner første på liste egentlig, så det er flere koordinater som beskriver en By
-@router.get("/geonorge/{query}", response_model=Stedsnavn)  # Endret fra List[Stedsnavn] til Stedsnavn
+@router.get("/{query}", response_model=Stedsnavn)
 async def get_stedsnavn(query: str):
-
     url = f"https://ws.geonorge.no/stedsnavn/v1/navn?sok={query}&fuzzy=false"
 
     async with httpx.AsyncClient() as client:
@@ -30,7 +29,7 @@ async def get_stedsnavn(query: str):
 
     data = response.json()
 
-    # Bearbeid dataen og hent ut nødvendige felter
+    # Process data and extract necessary fields
     stedsnavn_list = []
     for item in data['navn']:
         for kommune in item['kommuner']:

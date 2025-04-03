@@ -7,16 +7,14 @@ from app.api.stedsnavn import router as stedsnavn_router
 from fastapi import FastAPI
 
 api_router = APIRouter()
-api_router.include_router(login.router)
-api_router.include_router(users.router)
-api_router.include_router(utils.router)
-api_router.include_router(items.router)
-
-
-api_router.include_router(stedsnavn_router, prefix="/api", tags=["geonorge"])
+api_router.include_router(login.router, prefix="/login", tags=["login"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(utils.router, prefix="/utils", tags=["utils"])
+api_router.include_router(items.router, prefix="/items", tags=["items"])
+api_router.include_router(stedsnavn_router, prefix="/geonorge", tags=["locations"])
 
 if settings.ENVIRONMENT == "local":
-    api_router.include_router(private.router)
+    api_router.include_router(private.router, prefix="/private", tags=["private"])
 
 
 
