@@ -13,7 +13,7 @@ api_router.include_router(utils.router)
 api_router.include_router(items.router)
 
 
-api_router.include_router(stedsnavn_router, prefix="/api", tags=["geonorge"])
+api_router.include_router(stedsnavn_router, prefix="/geonorge")
 
 if settings.ENVIRONMENT == "local":
     api_router.include_router(private.router)
