@@ -1,135 +1,90 @@
-import {
-  Container,
-  Heading,
-  SkeletonText,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@chakra-ui/react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useEffect } from "react"
-import { z } from "zod"
+import { OpenAPI } from "../../client"
+import { Box, Container, Text, Input, Spinner, Alert, AlertIcon } from "@chakra-ui/react"
+import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
+import useAuth from "../../hooks/useAuth"
 
-import { ItemsService } from "../../client"
-import ActionsMenu from "../../components/Common/ActionsMenu"
-import Navbar from "../../components/Common/Navbar"
-import AddItem from "../../components/Items/AddItem"
-import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
-
-const itemsSearchSchema = z.object({
-  page: z.number().catch(1),
-})
-
-export const Route = createFileRoute("/_layout/items")({
-  component: Items,
-  validateSearch: (search) => itemsSearchSchema.parse(search),
-})
-
-const PER_PAGE = 5
-
-function getItemsQueryOptions({ page }: { page: number }) {
-  return {
-    queryFn: () =>
-      ItemsService.readItems({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
-    queryKey: ["items", { page }],
-  }
+// Definerer typen for fireRisks
+interface FireRisk {
+  timestamp: string;
+  ttf: number;
+  wind_speed: number;
 }
 
-function ItemsTable() {
-  const queryClient = useQueryClient()
-  const { page } = Route.useSearch()
-  const navigate = useNavigate({ from: Route.fullPath })
-  const setPage = (page: number) =>
-    navigate({ search: (prev: {[key: string]: string}) => ({ ...prev, page }) })
+export const Route = createFileRoute("/_layout/")({
+  component: Dashboard,
+})
 
-  const {
-    data: items,
-    isPending,
-    isPlaceholderData,
-  } = useQuery({
-    ...getItemsQueryOptions({ page }),
-    placeholderData: (prevData) => prevData,
-  })
+function Dashboard() {
+  const { user: currentUser } = useAuth()
+  const [searchTerm, setSearchTerm] = useState("")
+  const [fireRisks, setFireRisks] = useState<FireRisk[]>([])  // Bruker FireRisk type her
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const hasNextPage = !isPlaceholderData && items?.data.length === PER_PAGE
-  const hasPreviousPage = page > 1
+  const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchTerm.trim()) {
+      setLoading(true)
+      setError("")
+      try {
+        const response = await fetch(`${OpenAPI.BASE}/api/v1/geonorge/${encodeURIComponent(searchTerm)}`)
+        if (!response.ok) {
+          throw new Error("Ingen treff funnet eller API-feil")
+        }
 
-  useEffect(() => {
-    if (hasNextPage) {
-      queryClient.prefetchQuery(getItemsQueryOptions({ page: page + 1 }))
+        const data = await response.json()
+        const limitedRisks = data.firerisks?.slice(0, 10) || []
+        console.log(limitedRisks)
+
+        setFireRisks(limitedRisks)
+      } catch (err: any) {
+        setError(err.message)
+        setFireRisks([])
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [page, queryClient, hasNextPage])
+  }
 
   return (
-    <>
-      <TableContainer>
-        <Table size={{ base: "sm", md: "md" }}>
-          <Thead>
-            <Tr>
-              <Th>ID</Th>
-              <Th>Title</Th>
-              <Th>Description</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          {isPending ? (
-            <Tbody>
-              <Tr>
-                {new Array(4).fill(null).map((_, index) => (
-                  <Td key={index}>
-                    <SkeletonText noOfLines={1} paddingBlock="16px" />
-                  </Td>
-                ))}
-              </Tr>
-            </Tbody>
-          ) : (
-            <Tbody>
-              {items?.data.map((item) => (
-                <Tr key={item.id} opacity={isPlaceholderData ? 0.5 : 1}>
-                  <Td>{item.id}</Td>
-                  <Td isTruncated maxWidth="150px">
-                    {item.title}
-                  </Td>
-                  <Td
-                    color={!item.description ? "ui.dim" : "inherit"}
-                    isTruncated
-                    maxWidth="150px"
-                  >
-                    {item.description || "N/A"}
-                  </Td>
-                  <Td>
-                    <ActionsMenu type={"Item"} value={item} />
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          )}
-        </Table>
-      </TableContainer>
-      <PaginationFooter
-        page={page}
-        onChangePage={setPage}
-        hasNextPage={hasNextPage}
-        hasPreviousPage={hasPreviousPage}
-      />
-    </>
-  )
-}
+    <Container maxW="full" centerContent>
+      <Box pt={12} m={4} textAlign="center">
+        <Text fontSize="2xl">
+          Hi, {currentUser?.full_name || currentUser?.email} 👋🏼
+          test
+        </Text>
+        <Text>Welcome back, nice to see you again!</Text>
+      </Box>
+      <Box w="100%" display="flex" justifyContent="center" mt={4}>
+        <Input
+          placeholder="Skriv inn et stedsnavn..."
+          width="50%"
+          maxWidth="600px"
+          borderRadius="xl"
+          boxShadow="md"
+          p={4}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleSearch}
+        />
+      </Box>
 
-function Items() {
-  return (
-    <Container maxW="full">
-      <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        Items Management
-      </Heading>
-
-      <Navbar type={"Item"} addModalAs={AddItem} />
-      <ItemsTable />
+      <Box mt={6} width="80%">
+        {loading && <Spinner size="lg" />}
+        {error && (
+          <Alert status="error" mt={4}>
+            <AlertIcon />
+            {error}
+          </Alert>
+        )}
+        {fireRisks.map((risk, idx) => (
+          <Box key={idx} p={4} borderWidth="1px" borderRadius="lg" shadow="md">
+            <Text><strong>Dato:</strong> {risk.timestamp}</Text>
+            <Text><strong>Brannfareindeks (TTF):</strong> {risk.ttf}</Text>
+            <Text><strong>Vindhastighet:</strong> {risk.wind_speed} m/s</Text>
+          </Box>
+        ))}
+      </Box>
     </Container>
   )
 }
