@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/geonorge", tags=["locations"])
+router = APIRouter(tags=["locations"])
 
 
 class Stedsnavn(BaseModel):
