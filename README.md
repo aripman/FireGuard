@@ -26,7 +26,6 @@ Note: The first time you start your stack, it might take a minute for it to be r
 
 Note: Take a look at the .ENV files for login details, you can also create a new user when going to the frontend.
 
-
 ## Technology Stack and Features
 
 - ⚡ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
