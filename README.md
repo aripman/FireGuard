@@ -58,3 +58,4 @@ Traefik UI, to see how the routes are being handled by the proxy: http://localho
 Note: The first time you start your stack, it might take a minute for it to be ready. While the backend waits for the database to be ready and configures everything. You can check the logs to monitor it.
 
 Note: Take a look at the .ENV files for login details, you can also create a new user when going to the frontend.
+
