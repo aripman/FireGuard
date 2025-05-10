@@ -24,15 +24,15 @@ Traefik acts as a reverse proxy and load balancer. It handles subdomain-based ro
 ### Continuous Integration & Deployment
 The project includes GitHub Actions workflows to automate: Linting and testing on every commit, deployment to remote environments (e.g., staging/production servers), this enables safe, efficient, and consistent release cycles.
 
-## flow chart for making a user (password hashing) and login (gain a access token)
+## Flow chart for making a user (password hashing) and login (gain a access token)
 
 ### Make a new user
 [![API docs](img/Flow_chart_make_a_user.png)]
 
-### login 
+### Login  
 [![API docs](img/Flow_chart_login_and_accessToken.png)]
 
-## flow chart for fire risk prediction
+## Flow chart for fire risk prediction
 [![API docs](img/Flow_chart_fire_risk.png)]
 
 ## Docker compose
